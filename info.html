@@ -3,77 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Information</title>
+    <title>Wedding Information - Lee & Steven</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container rsvp-container">
-        <h1>Wedding Information</h1>
+    <div class="page-container">
+        <div class="overlay"></div>
+        
+        <div class="content-box">
+            <h1>Wedding Information</h1>
 
-        <form id="code-form">
-            <label for="accessCode" class="rsvp-label">Access Code:</label>
-            <input type="text" id="accessCode" name="accessCode" required class="rsvp-input">
-            <button type="button" id="checkCodeBtn" class="rsvp-button">Check Code</button>
-        </form>
-
-        <div id="info-content" style="display: none;">
-            <p> <b>Date: </b>September 21st, 2024</p>
-            <p> <b>Time: </b>Outdoor ceremony at 5pm, party to follow</p>
-            <p><b>Location: </b>1116 Greenspring Valley Rd, Timonium, MD 21093</p>
-            <p><b>Attire: </b>Cocktail</p>
-            
-            <div id="info-content" class="home-link">
-                <p><b>Hotel: </b>A block of rooms is reserved for Friday 9/20 and Saturday 9/21 at Embassy Suites Baltimore North - Hunt Valley under 
-                    "Gensler-Cluett Wedding". The hotel phone number is &zwj;410-584-1400 and the address is 213 International Cir, Hunt Valley, MD. Rooms may also be reserved
-                    <a href="https://www.hilton.com/en/attend-my-event/genslercluettweddingblock/">here</a>. </p>
-                <p><b>Questions?</b> Reach out to <a href="mailto:gensler.anna@gmail.com">Anna</a> or <a href="mailto:ccluett@gmail.com">Chris</a></p>
+            <!-- Access Code Form -->
+            <div id="code-form-container">
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Please enter your access code to view the wedding details.
+                </p>
+                <form id="code-form">
+                    <label for="accessCode">Access Code:</label>
+                    <input type="text" id="accessCode" name="accessCode" required placeholder="Enter code from invitation">
+                    <button type="submit">View Details</button>
+                </form>
+                <div id="code-message"></div>
             </div>
-        </div>
 
-        <div id="message"></div>
+            <!-- Wedding Information (Hidden until code is correct) -->
+            <div id="info-content" class="hidden">
+                <div class="info-section">
+                    <h2>When & Where</h2>
+                    <p><strong>Date:</strong> September 14th, 2025</p>
+                    <p><strong>Time:</strong> Ceremony begins at 4:00 PM</p>
+                    <p><strong>Reception:</strong> Immediately following ceremony</p>
+                    <p><strong>Location:</strong> The Grand Estate</p>
+                    <p><strong>Address:</strong> 123 Wedding Lane, Beverly Hills, CA 90210</p>
+                </div>
 
-        <div id="home-link" class="home-link">
-            <a href="/">Back to Home</a>
+                <div class="info-section">
+                    <h2>Accommodations</h2>
+                    <p>We have reserved a block of rooms at the following hotels:</p>
+                    <p><strong>The Grand Hotel</strong><br>
+                    456 Luxury Ave, Beverly Hills, CA<br>
+                    Mention "Lee-Steven Wedding" for group rate<br>
+                    <a href="tel:555-0100">555-0100</a></p>
+                </div>
+
+                <div class="info-section">
+                    <h2>Dress Code</h2>
+                    <p><strong>Cocktail Attire</strong></p>
+                    <p>The ceremony will be outdoors on the lawn, so please consider footwear accordingly.</p>
+                </div>
+
+                <div class="info-section">
+                    <h2>Questions?</h2>
+                    <p>Please don't hesitate to reach out!</p>
+                    <p>Email: <a href="mailto:wedding@example.com">wedding@example.com</a></p>
+                </div>
+
+                <div class="nav-link">
+                    <a href="/rsvp">RSVP Now</a>
+                </div>
+            </div>
+
+            <div class="home-link">
+                <a href="/">Back to Home</a>
+            </div>
         </div>
     </div>
     
     <script>
+        // IMPORTANT: Replace this with your actual Worker URL
+        const WORKER_URL = 'https://wedding-rsvp-api.YOUR-SUBDOMAIN.workers.dev';
+        
         const codeForm = document.getElementById('code-form');
-        const checkCodeBtn = document.getElementById('checkCodeBtn');
-        const accessCodeInput = document.getElementById('accessCode');
+        const codeFormContainer = document.getElementById('code-form-container');
         const infoContent = document.getElementById('info-content');
-        const messageDiv = document.getElementById('message');
+        const codeMessage = document.getElementById('code-message');
 
-        async function checkCode() {
-            const code = accessCodeInput.value;
+        codeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const code = document.getElementById('accessCode').value;
+            const submitButton = codeForm.querySelector('button');
+            
+            // Show loading state
+            submitButton.textContent = 'Checking...';
+            submitButton.disabled = true;
+            codeMessage.innerHTML = '';
 
             try {
-                const response = await fetch('/api/check-code', {
+                const response = await fetch(`${WORKER_URL}/api/check-code`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code }),
                 });
 
                 if (response.ok) {
-                    codeForm.style.display = 'none';
-                    infoContent.style.display = 'block';
+                    // Code is correct - show content
+                    codeFormContainer.classList.add('hidden');
+                    infoContent.classList.remove('hidden');
+                    
+                    // Store in session so they don't have to re-enter on this page
+                    sessionStorage.setItem('weddingCodeVerified', 'true');
                 } else {
-                    messageDiv.textContent = '';
+                    // Invalid code
+                    codeMessage.innerHTML = '<div class="error">Invalid access code. Please try again.</div>';
+                    document.getElementById('accessCode').value = '';
+                    document.getElementById('accessCode').focus();
                 }
             } catch (error) {
-                messageDiv.textContent = 'An error occurred';
-                console.error(error);
-            }
-        }
-
-        checkCodeBtn.addEventListener('click', checkCode);
-
-        accessCodeInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                checkCode();
+                console.error('Error:', error);
+                codeMessage.innerHTML = '<div class="error">An error occurred. Please try again.</div>';
+            } finally {
+                submitButton.textContent = 'View Details';
+                submitButton.disabled = false;
             }
         });
+
+        // Check if already verified in this session
+        if (sessionStorage.getItem('weddingCodeVerified') === 'true') {
+            codeFormContainer.classList.add('hidden');
+            infoContent.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
