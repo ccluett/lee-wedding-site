@@ -67,10 +67,23 @@
         </div>
     </div>
     
-    <script>
-        // IMPORTANT: Replace this with your actual Worker URL
+    <script>        
+        
         const WORKER_URL = 'https://wedding-rsvp-api.cluett26.workers.dev';
         
+        // Check if running locally
+        const isLocalDevelopment = window.location.hostname === 'localhost' || 
+                                window.location.hostname === '127.0.0.1' || 
+                                window.location.protocol === 'file:';
+        
+        if (isLocalDevelopment) {
+            console.log('Local development mode - bypassing access code');
+            window.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('code-form-container').classList.add('hidden');
+                document.getElementById('info-content').classList.remove('hidden');
+            });
+        }
+
         const codeForm = document.getElementById('code-form');
         const codeFormContainer = document.getElementById('code-form-container');
         const infoContent = document.getElementById('info-content');
