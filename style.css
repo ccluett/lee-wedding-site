@@ -1,194 +1,231 @@
-body {
-    font-family: Georgia, serif;
-    background-color: #f826a1;
-    font-size: 40px;
-    color: #00FF00;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+/* Unified Wedding Site Styles */
+* {
     margin: 0;
-
-    background-image: url('images/memphis-pattern.jpg');
-    background-repeat: repeat;
-    background-size: 14em;
-    
-    /* background-image: 
-        linear-gradient(45deg, #FF69B4 25%, transparent 25%), 
-        linear-gradient(-45deg, #FF69B4 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #FF69B4 75%),
-        linear-gradient(-45deg, transparent 75%, #FF69B4 75%);
-    background-size: 100px 100px;
-    background-position: 0 0, 0 50px, 50px -50px, -50px 0px;
-    background-color: #FF1493; /* Hot pink for the alternate squares */  
-
- }
-  
- h1, p, a {
-    background-color: rgba(248,38,161, 0.5);
-    padding: 10px;
-    border-radius: 5px;
-  }
-
-  h1 {
-    font-family: 'Impact', sans-serif;
-    font-size: 2em;
-    text-shadow: 5px 5px 10px #FF0000;
-    text-align: center;
-    margin-bottom: 0.25em; /* Reduced from default */
-  }
-  
-  p {
-    font-size: 1.em;
-    margin-top: 0.1em; /* Add this to reduce space above paragraphs */
-    margin-bottom: 0.1em; /* Add this to reduce space below paragraphs */
-  }
-  
-  a {
-    color: #00FFFF;
-    text-decoration: underline;
-    font-size: 1.5em;
-    margin-top: 0.1em; /* Reduced from 20px */
-    margin-bottom: 0.1em; /* Reduced from 20px */
-  }
-
-.image-carousel {
-    width: 90vw;
-    max-width: 800px;
-    /* Set a fixed height for the carousel */
-    height: auto; /* Adjust as needed based on your desired height */
-    overflow: hidden;
-    position: relative;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.image-container {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    height: 100%; /* Ensure the image container takes full carousel height */
-    align-items: center; /* Vertically center images within the container */
-    margin-bottom: 50px;
-    margin-top: 0.1em;
-}
-
-.image-container img {
-    min-width: 100%;
-    height: auto;
-    object-fit: contain;
-/*    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);*/
-}
-
-
-/* Adjust carousel width for smaller screens */
-@media (max-width: 768px) {
-    body { font-size: 24px; }
-    h1 { 
-        margin-bottom: 0.3em; /* Further reduce spacing on small screens */
-      }
-      p {
-        margin-top: 0.3em;
-        margin-bottom: 0.3em;
-      }
-      a {
-        margin-top: 0.3em;
-        margin-bottom: 0.3em;
-      }
-      .image-carousel { 
-        margin-top: 0.5em;
-      }
-    }
-
-.prev-button, .next-button {
-    cursor: pointer;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%); /* Center vertically */
-    background-color: rgba(0,0,0,0.5);
-    color: white;
-    padding: 10px;
-    font-size: 20px;
-    border: none;
-}
-
-.prev-button {
-    left: 10px;
-}
-
-.next-button {
-    right: 10px;
-}
-
-/* RSVP Container */
-.rsvp-container {
-    background-color: rgba(248,38,161, 0.8); /* Semi-transparent neon pink */
-    padding: 20px;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 0 10px #00FFFF; /* Neon blue box shadow */
-    margin-top: 50px;
-    margin-bottom: 50px;
-    margin-left: 50px;
-    margin-right: 50px;
-}
-
-/* RSVP Form */
-.rsvp-form {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Labels */
-.rsvp-label {
-    color: #00FF00; /* Lime green */
-    margin-top: 5px;  /* Reduced spacing */
-    font-weight: bold;
-    font-size: 1em;  /* Scaled down font size */
-}
-
-/* Inputs, Selects */
-.rsvp-input,
-.rsvp-select {
-    padding: 8px;       /* Slightly reduced padding */
-    margin-bottom: 10px;  /* Reduced spacing */
-    border: 2px solid #00FFFF; /* Neon blue border */
-    border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
-    color: #00FF00; /* Lime green text */
+body, html {
+    height: 100%;
     font-family: Georgia, serif;
-    font-size: 1em;  /* Scaled down font size */
-}
-.rsvp-input::placeholder { /* Style the placeholder text */
-    color: lightgray; /* Or choose another shade that fits your theme */
+    color: #333;
 }
 
-/* Button */
-.rsvp-button {
-    padding: 10px 20px;  /* Slightly reduced padding */
-    background-image: linear-gradient(45deg, #FF1493, #FF69B4); /* Gradient button */
-    color: #00FF00;
+/* Full page background container */
+.page-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background-image: url('images/background_1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Dark overlay for better readability */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 0;
+}
+
+/* Main content container */
+.content-box {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+h1 {
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-weight: normal;
+    letter-spacing: 1px;
+}
+
+h2 {
+    font-size: 1.8em;
+    margin: 30px 0 20px 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+/* Form Elements */
+label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: Georgia, serif;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: #7c9885;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 25px;
+    background: #2c3e50;
+    color: white;
     border: none;
     border-radius: 5px;
+    font-size: 1.2em;
+    font-family: Georgia, serif;
     cursor: pointer;
-    font-size: 1em;    /* Scaled down font size */
-    font-family: 'Pixel Emulator', cursive;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+    transition: all 0.3s;
+    letter-spacing: 1px;
 }
 
-.rsvp-button:hover {
-    transform: scale(1.05); /* Slight zoom on hover */
+button:hover {
+    background: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-
-/* Message */
-#message {
-    margin-top: 10px;
-    color: #00FFFF; /* Electric blue */
-    font-weight: bold;
-    font-size: 0.9em; /* Slightly smaller font size */
-}
-.home-link {
+/* Message boxes */
+#message, .message {
     margin-top: 20px;
-    display: block;
-}
-.home-link a{
-    font-size: 1em; /* Scaled down the font size */
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.1em;
 }
 
+.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Links */
+a {
+    color: #2c3e50;
+    text-decoration: none;
+    border-bottom: 2px solid #7c9885;
+    transition: all 0.3s;
+}
+
+a:hover {
+    color: #7c9885;
+    border-bottom-color: #2c3e50;
+}
+
+.home-link, .nav-link {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.home-link a, .nav-link a {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #7c9885;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.home-link a:hover, .nav-link a:hover {
+    background: #6b8574;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Info page specific */
+.info-section {
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(124, 152, 133, 0.1);
+    border-radius: 5px;
+}
+
+.info-section p {
+    margin-bottom: 10px;
+}
+
+.info-section strong {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Hidden elements */
+.hidden {
+    display: none !important;
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .content-box {
+        padding: 30px 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    h2 {
+        font-size: 1.5em;
+    }
+    
+    button {
+        font-size: 1.1em;
+    }
+}
