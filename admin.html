@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Wedding RSVPs</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional admin-specific styles */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: rgba(124, 152, 133, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: normal;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: rgba(124, 152, 133, 0.05);
+        }
+        
+        .attending-yes {
+            color: #155724;
+            font-weight: bold;
+        }
+        
+        .attending-no {
+            color: #721c24;
+        }
+        
+        .download-btn {
+            background: #7c9885;
+            margin-top: 20px;
+        }
+        
+        .download-btn:hover {
+            background: #6b8574;
+        }
+        
+        .refresh-btn {
+            background: #5a6c7d;
+            margin-top: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="overlay"></div>
+        
+        <div class="content-box" style="max-width: 900px;">
+            <h1>RSVP Admin Dashboard</h1>
+
+            <!-- Admin Access Code Form -->
+            <div id="code-form-container">
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Please enter the admin access code to view RSVPs.
+                </p>
+                <form id="code-form">
+                    <label for="adminCode">Admin Code:</label>
+                    <input type="password" id="adminCode" name="adminCode" required placeholder="Enter admin code">
+                    <button type="submit">View RSVPs</button>
+                </form>
+                <div id="code-message"></div>
+            </div>
+
+            <!-- RSVP Dashboard (Hidden until code is correct) -->
+            <div id="admin-content" class="hidden">
+                <!-- Statistics -->
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-attending">0</div>
+                        <div class="stat-label">Attending</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-not-attending">0</div>
+                        <div class="stat-label">Not Attending</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-total-guests">0</div>
+                        <div class="stat-label">Total Guests</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-total-responses">0</div>
+                        <div class="stat-label">Total Responses</div>
+                    </div>
+                </div>
+
+                <!-- RSVP Table -->
+                <div class="table-container">
+                    <table id="rsvp-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Attending</th>
+                                <th>Guests</th>
+                                <th>Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvp-tbody">
+                            <!-- Rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Action Buttons -->
+                <button class="refresh-btn" onclick="loadRSVPs()">Refresh Data</button>
+                <button class="download-btn" onclick="downloadCSV()">Download as CSV</button>
+            </div>
+
+            <div class="home-link">
+                <a href="/">Back to Home</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const WORKER_URL = 'https://wedding-rsvp-api.cluett26.workers.dev';
+        
+        const codeForm = document.getElementById('code-form');
+        const codeFormContainer = document.getElementById('code-form-container');
+        const adminContent = document.getElementById('admin-content');
+        const codeMessage = document.getElementById('code-message');
+        let rsvpData = [];
+
+        // Handle admin code submission
+        codeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const code = document.getElementById('adminCode').value;
+            const submitButton = codeForm.querySelector('button');
+            
+            // Show loading state
+            submitButton.textContent = 'Checking...';
+            submitButton.disabled = true;
+            codeMessage.innerHTML = '';
+
+            try {
+                const response = await fetch(`${WORKER_URL}/api/admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminCode: code }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    rsvpData = data.rsvps;
+                    
+                    // Hide form, show content
+                    codeFormContainer.classList.add('hidden');
+                    adminContent.classList.remove('hidden');
+                    
+                    // Store in session
+                    sessionStorage.setItem('adminCodeVerified', 'true');
+                    sessionStorage.setItem('adminCode', code);
+                    
+                    // Display the data
+                    displayRSVPs(rsvpData);
+                } else {
+                    codeMessage.innerHTML = '<div class="error">Invalid admin code. Please try again.</div>';
+                    document.getElementById('adminCode').value = '';
+                    document.getElementById('adminCode').focus();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                codeMessage.innerHTML = '<div class="error">An error occurred. Please try again.</div>';
+            } finally {
+                submitButton.textContent = 'View RSVPs';
+                submitButton.disabled = false;
+            }
+        });
+
+        // Load RSVPs (for refresh button)
+        async function loadRSVPs() {
+            const code = sessionStorage.getItem('adminCode');
+            if (!code) return;
+
+            try {
+                const response = await fetch(`${WORKER_URL}/api/admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminCode: code }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    rsvpData = data.rsvps;
+                    displayRSVPs(rsvpData);
+                }
+            } catch (error) {
+                console.error('Error refreshing:', error);
+            }
+        }
+
+        // Display RSVPs in table and update stats
+        function displayRSVPs(rsvps) {
+            // Calculate statistics
+            let attending = 0;
+            let notAttending = 0;
+            let totalGuests = 0;
+            
+            rsvps.forEach(rsvp => {
+                if (rsvp.attending) {
+                    attending++;
+                    totalGuests += rsvp.guests;
+                } else {
+                    notAttending++;
+                }
+            });
+            
+            // Update statistics
+            document.getElementById('stat-attending').textContent = attending;
+            document.getElementById('stat-not-attending').textContent = notAttending;
+            document.getElementById('stat-total-guests').textContent = totalGuests;
+            document.getElementById('stat-total-responses').textContent = rsvps.length;
+            
+            // Update table
+            const tbody = document.getElementById('rsvp-tbody');
+            tbody.innerHTML = '';
+            
+            // Sort by submission date (newest first)
+            rsvps.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+            
+            rsvps.forEach(rsvp => {
+                const row = tbody.insertRow();
+                
+                row.insertCell(0).textContent = rsvp.name;
+                row.insertCell(1).textContent = rsvp.email;
+                
+                const attendingCell = row.insertCell(2);
+                attendingCell.textContent = rsvp.attending ? 'Yes' : 'No';
+                attendingCell.className = rsvp.attending ? 'attending-yes' : 'attending-no';
+                
+                row.insertCell(3).textContent = rsvp.guests;
+                
+                const date = new Date(rsvp.submitted_at);
+                row.insertCell(4).textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            });
+        }
+
+        // Download as CSV
+        function downloadCSV() {
+            if (rsvpData.length === 0) return;
+            
+            // Create CSV content
+            const headers = ['Name', 'Email', 'Attending', 'Number of Guests', 'Submitted Date'];
+            const rows = rsvpData.map(rsvp => [
+                rsvp.name,
+                rsvp.email,
+                rsvp.attending ? 'Yes' : 'No',
+                rsvp.guests,
+                new Date(rsvp.submitted_at).toLocaleString()
+            ]);
+            
+            // Convert to CSV format
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `wedding_rsvps_${new Date().toISOString().split('T')[0]}.csv`);
+            link.click();
+        }
+
+        // Check if already verified in this session
+        if (sessionStorage.getItem('adminCodeVerified') === 'true') {
+            loadRSVPs().then(() => {
+                codeFormContainer.classList.add('hidden');
+                adminContent.classList.remove('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
