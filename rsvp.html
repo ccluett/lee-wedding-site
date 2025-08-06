@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding RSVP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container rsvp-container">
+        <h1>Wedding RSVP</h1>
+
+        <form id="code-form">
+            <label for="accessCode" class="rsvp-label">Access Code:</label>
+            <input type="text" id="accessCode" name="accessCode" required class="rsvp-input">
+            <button type="button" id="checkCodeBtn" class="rsvp-button">Check Code</button>
+        </form>
+        
+        <div id="rsvp-form-container" style="display: none;">
+            <form id="rsvp-form" class="rsvp-form">
+                <label for="name" class="rsvp-label">Name(s) on Invitation:</label>
+                <input type="text" id="name" name="name" placeholder="e.g., Jane & John Doe" required class="rsvp-input">
+
+                <label for="email" class="rsvp-label">Email:</label>
+                <input type="email" id="email" name="email" required class="rsvp-input">
+
+                <label for="attending" class="rsvp-label">Will you be attending?</label>
+                <select id="attending" name="attending" required class="rsvp-select">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+
+                <label for="guests" class="rsvp-label">Number of attendees:</label>
+                <input type="number" id="guests" name="guests" min="0" max="2" required class="rsvp-input">
+
+                <button type="submit" class="rsvp-button">Submit RSVP</button>
+            </form>
+
+            <div id="message"></div> 
+            
+        </div>
+        
+        <div id="home-link" class="home-link">
+            <a href="/">Back to Home</a>
+        </div>
+    </div>
+    
+    <script>
+        const codeForm = document.getElementById('code-form');
+        const checkCodeBtn = document.getElementById('checkCodeBtn');
+        const accessCodeInput = document.getElementById('accessCode');
+        const rsvpFormContainer = document.getElementById('rsvp-form-container');
+        const rsvpForm = document.getElementById('rsvp-form');
+        const messageDiv = document.getElementById('message');
+        const homeLinkDiv = document.getElementById('home-link');
+    
+        // Function to check the access code
+        async function checkCode() {
+            const code = accessCodeInput.value;
+
+            try {
+                const response = await fetch('https://wedding-rsvp-api.cluett26.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code }),
+                });
+
+                if (response.ok) {
+                    codeForm.style.display = 'none'; 
+                    rsvpFormContainer.style.display = 'block'; 
+                } else {
+                    messageDiv.textContent = '';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred';
+                console.error(error);
+            }
+        }
+
+        // Event listener for the button click
+        checkCodeBtn.addEventListener('click', checkCode);
+
+        // Event listener for the Enter key press
+        accessCodeInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                checkCode();
+            }
+        });
+
+        checkCodeBtn.addEventListener('click', async () => {
+            const code = codeForm.querySelector('#accessCode').value;
+
+            try {
+                const response = await fetch('https://wedding-rsvp-api.cluett26.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code }),
+                });
+
+                if (response.ok) {
+                    codeForm.style.display = 'none'; 
+                    rsvpFormContainer.style.display = 'block';                    
+                } else {
+                    messageDiv.textContent = '';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred';
+                console.error(error);
+            }
+        });
+
+        rsvpForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const name = rsvpForm.querySelector('#name').value;
+            const email = rsvpForm.querySelector('#email').value;
+            const attending = rsvpForm.querySelector('#attending').value === 'true';
+            const guests = parseInt(rsvpForm.querySelector('#guests').value, 10);
+
+            if (isNaN(guests) || guests < 0 || guests > 2) {
+                messageDiv.textContent = 'Please enter a valid number of guests.';
+                return; 
+            }
+
+            const rsvpData = { name, email, attending, guests };
+
+            try {
+                const response = await fetch('https://wedding-rsvp-api.cluett26.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(rsvpData),
+                });
+
+                if (response.ok) {
+                    messageDiv.textContent = 'RSVP submitted successfully!';
+                    rsvpForm.reset();
+                    homeLinkDiv.style.display = 'block'; 
+                } else {
+                    const errorData = await response.json(); 
+                    messageDiv.textContent = errorData.message || 'Error submitting RSVP';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred while submitting the RSVP. If error persists, please email ccluett@gmail.com.';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
